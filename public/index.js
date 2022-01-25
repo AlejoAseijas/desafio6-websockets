@@ -1,5 +1,15 @@
 const socket = io();
 
+socket.on("onLoad", (productos) => {
+  fetch("http://localhost:3000/template/productos.tpl")
+    .then((res) => res.text())
+    .then((data) => {
+      const template = Handlebars.compile(data);
+      const html = template({ productos });
+      document.getElementById("dataProductos").innerHTML = html;
+    });
+});
+
 function sendMessage() {
   const message = {
     nombre: document.getElementById("nombre").value,

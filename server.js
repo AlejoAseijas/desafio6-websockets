@@ -5,8 +5,7 @@ const server = http.createServer(app);
 const io = require("socket.io")(server);
 const path = require("path");
 const { engine } = require("express-handlebars");
-const Productos = require("./Controller/productos");
-let productosReq = new Productos();
+const { getAll, postProduct } = require("./Controller/productos");
 let chat = [];
 
 app.use(express.static("./public"));
@@ -26,15 +25,9 @@ app.engine(
 app.set("views", "./views");
 app.set("view engine", "handlebars");
 
-app.get("/productos", async (req, res) => {
-  let resData = await productosReq.get();
-  res.render("index", { tableProducts: true, products: resData });
-});
+app.get("/productos", getAll);
 
-app.post("/productos", async (req, res) => {
-  const resData = await productosReq.post(req.body);
-  res.render("index", { tableProducts: true, products: resData });
-});
+app.post("/productos", postProduct);
 
 io.on("connection", (socket) => {
   emitir();
@@ -47,6 +40,6 @@ io.on("connection", (socket) => {
 
 const emitir = () => io.sockets.emit("chat", chat);
 
-server.listen(8080, () => {
-  console.log(`Running on port: ${8080}`);
+server.listen(3000, () => {
+  console.log(`Running on port: ${3000}`);
 });
