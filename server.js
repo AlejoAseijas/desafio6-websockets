@@ -6,7 +6,9 @@ const io = require("socket.io")(server);
 const path = require("path");
 const { engine } = require("express-handlebars");
 const { getAll, postProduct } = require("./Controller/productos");
-let chat = [];
+const Chat = require("./model/chat.model");
+
+const chat = new Chat();
 
 app.use(express.static("./public"));
 app.use(express.json());
@@ -29,16 +31,24 @@ app.get("/productos", getAll);
 
 app.post("/productos", postProduct);
 
+const emitir = () => {
+  const mensaje = chat.get();
+  mensaje.then((data) => {
+    io.sockets.emit("chat", data);
+  });
+};
+
 io.on("connection", (socket) => {
   emitir();
 
   socket.on("incomingMessage", (message) => {
-    chat.push(message);
     emitir();
+    if (message.nombre) {
+      chat.add(message);
+      emitir();
+    }
   });
 });
-
-const emitir = () => io.sockets.emit("chat", chat);
 
 server.listen(3000, () => {
   console.log(`Running on port: ${3000}`);
